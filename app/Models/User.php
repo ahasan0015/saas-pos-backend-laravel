@@ -2,12 +2,26 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    // রোল রিলেশনশিপ
+    use HasFactory, Notifiable;
+    // app/Models/User.php
+
+    protected $fillable = [
+        'name',
+        'email',
+        'phone',
+        'password',
+        'role_id',
+        'tenant_id',
+        'outlet_id'
+    ];
+    // role relationship
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);

@@ -11,14 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            // ডিফল্ট ইমেইল কলামকে নুলাবল করা এবং কাস্টম কলামগুলো সঠিক পজিশনে যোগ করা
-            $table->string('email')->nullable()->change();
-            $table->foreignId('tenant_id')->after('id')->constrained()->onDelete('cascade');
-            $table->foreignId('outlet_id')->after('tenant_id')->nullable()->constrained()->onDelete('set null');
-            $table->string('phone')->unique()->after('email');
-            $table->string('role')->default('cashier')->after('password');
-            $table->boolean('status')->default(true)->after('role');
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('phone')->unique(); 
+            $table->timestamp('email_verified_at')->nullable(); // ডিফল্ট ফিল্ড যোগ করা হয়েছে
+            $table->string('password');
+            $table->rememberToken(); // ডিফল্ট ফিল্ড যোগ করা হয়েছে
+            
+            // রোল এবং টেন্যান্ট রিলেশনশিপ
+            $table->foreignId('role_id')->nullable()->constrained('roles')->onDelete('cascade');
+            $table->foreignId('tenant_id')->nullable();
+            $table->foreignId('outlet_id')->nullable();
+            
+            $table->timestamps();
         });
     }
 
@@ -27,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('users');
     }
 };
