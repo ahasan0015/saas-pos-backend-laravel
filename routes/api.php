@@ -5,17 +5,36 @@ use App\Http\Controllers\Api\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// 🔓 পাবলিক রুট (লগইন করার জন্য টোকেন লাগবে না)
+/*
+|--------------------------------------------------------------------------
+| Public Routes
+|--------------------------------------------------------------------------
+*/
 Route::post('/login', [AuthController::class, 'login']);
 
-// 🔒 প্রটেক্টেড রুটস (এই রুটগুলো অ্যাক্সেস করতে Bearer Token লাগবে)
+/*
+|--------------------------------------------------------------------------
+| Protected Routes (Requires Sanctum Authentication)
+|--------------------------------------------------------------------------
+*/
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/products', [ProductController::class, 'index']);
-    // লগআউট রুট
+
+    /*
+    |--------------------------------------------------------------------------
+    | Auth Routes
+    |--------------------------------------------------------------------------
+    */
     Route::post('/logout', [AuthController::class, 'logout']);
-    
-    // কারেন্ট লগইন থাকা ইউজারের ডাটা দেখার জন্য টেস্ট রুট
-    Route::get('/user', function (Request $request) {
-        return $request->user();
+    Route::get('/user', fn (Request $request) => $request->user());
+
+    /*
+    |--------------------------------------------------------------------------
+    | Product Routes
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('products')->controller(ProductController::class)->group(function () {
+        Route::get('/', 'index');     // Retrieve all products
+        Route::post('/', 'store');    // Create a new product
     });
+
 });
