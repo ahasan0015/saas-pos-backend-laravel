@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -9,7 +10,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 // 🔒 প্রটেক্টেড রুটস (এই রুটগুলো অ্যাক্সেস করতে Bearer Token লাগবে)
 Route::middleware('auth:sanctum')->group(function () {
-    
+    Route::get('/products', [ProductController::class, 'index']);
     // লগআউট রুট
     Route::post('/logout', [AuthController::class, 'logout']);
     
