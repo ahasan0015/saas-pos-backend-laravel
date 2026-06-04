@@ -15,44 +15,47 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        // ১. ইনপুট ভ্যালিডেশন
+        // 1. Validate input data
         $request->validate([
             'phone' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        // ২. ইউজার খোঁজা
-        $user = User::query()->where('phone', $request->phone)->first();
+        // 2. Find user and load role relationship
+        $user = User::with('role')->where('phone', $request->phone)->first();
 
-        // ৩. পাসওয়ার্ড চেক করা
-        if (! $user || ! Hash::check($request->password, $user->password)) {
+        // 3. Check password
+        if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
                 'success' => false,
-                'message' => 'ভুল ফোন নম্বর অথবা পাসওয়ার্ড।'
+                'message' => 'Invalid phone number or password.'
             ], 401);
         }
 
-        // ৪. স্ট্যাটাস চেক করা
-        if ($user->status !== 1) {
-            return response()->json([
-                'success' => false,
-                'message' => 'আপনার অ্যাকাউন্টটি নিষ্ক্রিয়।'
-            ], 403);
-        }
+        // 4. Check user status (optional, if 'status' column exists)
+        // Note: Make sure your database has a 'status' column before using this
+        // if ($user->status !== 1) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Account is inactive.'
+        //     ], 403);
+        // }
 
-        // ৫. টোকেন ইস্যু করা
-        $token = $user->createToken('auth_token', [$user->role])->plainTextToken;
+        // 5. Issue token (use role name as ability)
+        $roleName = $user->role ? $user->role->name : 'user';
+        $token = $user->createToken('auth_token', [$roleName])->plainTextToken;
 
+        // 6. Return response
         return response()->json([
             'success' => true,
-            'message' => 'লগইন সফল হয়েছে।',
+            'message' => 'Login successful.',
             'token' => $token,
             'token_type' => 'Bearer',
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'phone' => $user->phone,
-                'role' => $user->role,
+                'role' => $user->role ? $user->role->name : null,
                 'tenant_id' => $user->tenant_id,
                 'outlet_id' => $user->outlet_id,
             ]

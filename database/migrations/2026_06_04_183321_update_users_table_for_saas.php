@@ -16,9 +16,13 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('phone')->unique(); 
-            $table->timestamp('email_verified_at')->nullable(); // ডিফল্ট ফিল্ড যোগ করা হয়েছে
+            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->rememberToken(); // ডিফল্ট ফিল্ড যোগ করা হয়েছে
+            
+            // এখানে status কলামটি যোগ করা হয়েছে
+            $table->boolean('status')->default(true); 
+            
+            $table->rememberToken();
             
             // রোল এবং টেন্যান্ট রিলেশনশিপ
             $table->foreignId('role_id')->nullable()->constrained('roles')->onDelete('cascade');
